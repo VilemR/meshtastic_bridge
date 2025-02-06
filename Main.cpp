@@ -202,18 +202,21 @@ void loop() {
     byte *byteArr = new byte[255];
     int numBytes = radio.getPacketLength();
     int state = radio.readData(byteArr, numBytes);
+
     if (state == RADIOLIB_ERR_NONE) {
       Serial.println(F("\n====================================================="
-                       "==========\n[SX1262] Received packet:"));
+                         "==========\n[SX1262] Received packet:"));
       Serial.println(printRawPacket(byteArr, numBytes));
       Serial.println("String loraPacketHex = \"" +
                      getByteString(byteArr, numBytes) + "\"");
+ 
       byte *rec = new byte[4];
       byte *sen = new byte[4];
       byte *mid = new byte[4];
       byte *flags = new byte[1];
       byte *channel = new byte[1];
       byte *payload = new byte[255];
+ 
       setValue(byteArr, rec, 0, 3, true);
       setValue(byteArr, sen, 4, 7, true);
       setValue(byteArr, mid, 8, 11, true);
@@ -224,34 +227,28 @@ void loop() {
       String payloadStr = convertToPrintableString(payload, 0, numBytes - 17);
 
       Serial.println("   Receipient: " + getByteString(rec, 4) + " (" +
-                     getNodeName(getByteString(rec, 4)) + ")");
+                                         getNodeName(getByteString(rec, 4)) + ")");
       Serial.println("   Sender    : " + getByteString(sen, 4) + " (" +
-                     getNodeName(getByteString(sen, 4)) + ")");
+                                         getNodeName(getByteString(sen, 4)) + ")");
       Serial.println("    packet id: " + getByteString(mid, 4));
       Serial.println("        flags: " + getByteString(flags, 1));
       Serial.println("      channel: " + getByteString(channel, 1));
       Serial.println("      payload: " + getByteString(payload, numBytes - 16) +
-                     " len(" + String(numBytes - 16) + ")");
+                               " len(" + String(numBytes - 16) + ")");
 
-      if (getByteString(sen, 4) == REPEATER ||
-          getByteString(sen, 4) == SENDER || true) {
-        Serial.println("        str(): " + payloadStr);
-      }
-
+      Serial.println("        str(): " + payloadStr);
       Serial.println("         RSSI: " + String(radio.getRSSI()) + " [dBm]");
       Serial.println("          SNR: " + String(radio.getSNR()) + " [dB]");
       display.clear();
       display.println("" + getByteString(sen, 4) + " -> " +
-                      getByteString(rec, 4));
+                           getByteString(rec, 4));
       display.println("ID:" + getByteString(mid, 4) + " (" +
-                      getByteString(channel, 1) + ")");
+                              getByteString(channel, 1) + ")");
       display.println("RSSI: " + String(radio.getRSSI()) + " [dBm]");
       display.println("SNR : " + String(radio.getSNR()) + " [dB]");
 
-      Serial.println(" compare SEN : " + getByteString(sen, 4) + " <> " +
-                     SENDER);
-
       bridge(byteArr, numBytes);
+      
     }
   }
 }
