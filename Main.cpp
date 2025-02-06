@@ -8,21 +8,8 @@
 
 float LORA_FREQUENCY = 869.525; // 869.525 433.062
 
-#define MAX_NODES_ENTRIES 20  // Maximum number of entries in the map
-#define NODE_ADDRESS_LENGTH 8 // Length of a MAC address string
-
-boolean isRepeater = true; // ale by default je sender - Setup().changeMode()
 byte syncWord = 0x2B;      // 0x2B
 
-// Adresa se v packetu posila nejnizsi byte jako prvni!
-// Primarne se adresy udrzuji a zapisuji prvni nejvyssi byte a v kodu se to prohazuje
-
-String SENDER = "aaaaaa1a"; // Reverse order!!!!
-String REPEATER = "bbbbbb1b";
-String MESSAGEID = "cccccc1c";
-
-String addressReceipient = "";
-String addressSender = "";
 
 struct LoraRawPacket
 {
@@ -35,10 +22,6 @@ struct LoraRawPacket
     int rssi;
 };
 
-int cycle = 0;
-long lastSendTime = 0; // last send time
-int interval = 10000;  // interval between sends
-int interval_rnd = 3000;
 
 int transmissionState = RADIOLIB_ERR_NONE;
 bool transmitFlag = false;
@@ -139,108 +122,10 @@ void setValue(byte payload[], byte destArr[], int from, int to, boolean reverse)
     }
 }
 
-void showMode()
-{
-    display.clear();
-    if (isRepeater == true)
-    {
-        heltec_led(100);
-        display.println("Repeater");
-        delay(2000);
-        heltec_led(0);
-    }
-    else
-    {
-        heltec_led(100);
-        display.println("Sender");
-        delay(2000);
-        heltec_led(0);
-    }
-}
-
-void changeMode()
-{
-    if (isRepeater == true)
-    {
-        isRepeater = false;
-        addressReceipient = REPEATER;
-        addressSender = SENDER;
-        Serial.println(F("Changed to SENDER mode!"));
-    }
-    else
-    {
-        isRepeater = true;
-        addressReceipient = SENDER;
-        addressSender = REPEATER;
-        Serial.println(F("Changed to REPEATER mode!"));
-    }
-    showMode();
-}
-
-// #define MAX_NODES_ENTRIES   20 // Maximum number of entries in the map
-// #define NODE_ADDRESS_LENGTH  8 // Length of a MAC address string
-
-char nodeAddresses[MAX_NODES_ENTRIES][NODE_ADDRESS_LENGTH];
-char names[MAX_NODES_ENTRIES][20]; // Adjust name length as needed
-int mapSize = 0;                   // Current number of entries in the map
-
-void addNode(String mac, String name)
-{
-    if (mapSize >= MAX_NODES_ENTRIES)
-    {
-        Serial.println("Map is full!");
-        return;
-    }
-    strncpy(nodeAddresses[mapSize], mac.c_str(), NODE_ADDRESS_LENGTH);
-    strncpy(names[mapSize], name.c_str(), 20);
-    mapSize++;
-}
-
-String getNodeName(String mac)
-{
-    char subArray[9];
-    for (int i = 0; i < mapSize; i++)
-    {
-        strncpy(subArray, nodeAddresses[i], 8);
-        subArray[8] = '\0';
-        if (strcmp(subArray, mac.c_str()) == 0)
-        {
-            return String(names[i]);
-        }
-    }
-    return "?"; // Return null if not found
-}
-
-boolean isKnown(String mac)
-{
-    return strcmp(String("?").c_str(), mac.c_str()) == 0 ? true : false;
-}
 
 int initLoRaRadio(lora_config loraRequiredConfig)
 {
-/*
-    int state = radio.begin(loraRequiredConfig.LORA_FREQUENCY,
-                            loraRequiredConfig.bandwidth,
-                            loraRequiredConfig.spreading_factor,
-                            loraRequiredConfig.coding_rate,
-                            loraRequiredConfig.syncWord,
-                            loraRequiredConfig.power,
-                            loraRequiredConfig.preambleLength,
-                            loraRequiredConfig.tcxoVoltage,
-                            false);
-float LORA_FREQUENCY = 869.525; // 869.525 433.062
-int state = radio.begin(LORA_FREQUENCY, // freq 869.525
-                          250.0,          // bw
-                          11,             // sf
-                          5,              // cr
-                          syncWord,       // syncWord
-                          21,             // power
-                          16,             // preambleLength
-                          1.6,            // tcxoVoltage
-                          false);      
-*/
 
-Serial.print(loraRequiredConfig.spreading_factor);
           int state = radio.begin(loraRequiredConfig.LORA_FREQUENCY,
                             loraRequiredConfig.bandwidth,
                             loraRequiredConfig.spreading_factor,
