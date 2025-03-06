@@ -6,4 +6,4 @@ To prevent communication collisions between the two Meshtastic networks, each en
 
 The device follows a straightforward process: it listens on one frequency, and when a packet is received, it switches the LoRa radio to the second frequency (adjusting the corresponding spreading factor that determines LF or MF) and retransmits the packet. Immediately afterward, the radio is tuned back to the original frequency, ready to bridge the next packet.
 
-PS: You may need corresponding Arduino/Heltec libraries installation (code dependency)
+PS: You may need corresponding Arduino/Heltec libraries installation (code dependency) and be aware of different conditions applicable for the alternative frequency 868.775 (lower transmitting power and lower airtime).
